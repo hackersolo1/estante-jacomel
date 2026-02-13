@@ -14,7 +14,7 @@ async function conectarMySQL() {
             host: 'mysql-3ba3c391-eujogominecraftpaulo99-728e.k.aivencloud.com',
             user: 'avnadmin',
             port: 20969,
-            password: 'AVNS_-u7AAeUqxThE7VlzjIo',           
+            password: process.env.DB_PASSWORD,           
             database: 'defaultdb',
             ssl: {
                 rejectUnauthorized: false
