@@ -103,9 +103,9 @@ app.get('/postsDelete/:id', async (req, res) => {
     }
 });
 
-app.get('/eventsDelete/:id', async (req, res) => {
+app.post('/eventsDelete', async (req, res) => {
     try {
-        const {id} = req.params;
+        const {id} = req.body;
         await connection.query('DELETE FROM eventos WHERE titulo = ?', [id]);
 
         res.json({ message: 'Evento deletado com sucesso!' });
