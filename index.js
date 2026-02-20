@@ -42,8 +42,8 @@ app.get('/events', async (req, res) => {
 
 app.post('/eventsCreate', async (req, res) => {
     try {
-        const { titulo, data_evento, hora_evento, descricao} = req.body;
-        const [result] = await connection.query('INSERT INTO eventos (titulo, data_evento, hora_evento, descricao, membros_encarregados) VALUES (?, ?, ?, ?, ?)', [titulo, data_evento, hora_evento, descricao, "9"]);
+        const { titulo, data_evento, hora_evento, descricao, local_evento} = req.body;
+        const [result] = await connection.query('INSERT INTO eventos (titulo, data_evento, hora_evento, descricao, local_evento) VALUES (?, ?, ?, ?, ?)', [titulo, data_evento, hora_evento, descricao, local_evento]);
 
         res.json({ message: 'Evento criado com sucesso!' });
     } catch (error) {
@@ -71,10 +71,20 @@ app.get('/posts', async (req, res) => {
     }
 });
 
+app.get('/posts/:id', async (req, res) => {
+    try {
+        const {id} = req.params;
+        const [rows] = await connection.query('SELECT * FROM posts WHERE titulo = ?', [id]);
+        res.json(rows[0]);
+    } catch (error) {
+        console.error('Error fetching post:', error);
+    }
+});
+
 app.post('/postsCreate', async (req, res) => {
     try {
-        const {titulo, conteudo} = req.body;
-        const [result] = await connection.query('INSERT INTO posts (titulo, conteudo) VALUES (?, ?)', [titulo, conteudo]);
+        const {slugId, titulo, conteudo, autorPost, dataPost} = req.body;
+        const [result] = await connection.query('INSERT INTO posts (slugId, titulo, conteudo, autorPost, dataPost) VALUES (?, ?, ?, ?, ?)', [slugId, titulo, conteudo, autorPost, dataPost]);
 
     } catch (error) {
         console.error('Error creating post:', error);
@@ -85,6 +95,7 @@ app.get('/postsDelete/:id', async (req, res) => {
     try {
         const {id} = req.params;
         await connection.query('DELETE FROM posts WHERE titulo = ?', [id]);
+        console.log(id);
 
         res.json({ message: 'Post deletado com sucesso!' });
     } catch (error) {
