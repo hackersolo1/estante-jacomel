@@ -91,9 +91,9 @@ app.post('/postsCreate', async (req, res) => {
     }
 });
 
-app.get('/postsDelete/:id', async (req, res) => {
+app.post('/postsDelete', async (req, res) => {
     try {
-        const {id} = req.params;
+        const {id} = req.body;
         await connection.query('DELETE FROM posts WHERE titulo = ?', [id]);
         console.log(id);
 
