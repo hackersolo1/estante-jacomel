@@ -42,8 +42,8 @@ app.get('/events', async (req, res) => {
 
 app.post('/eventsCreate', async (req, res) => {
     try {
-        const { titulo, data_evento, hora_evento, descricao, local_evento} = req.body;
-        const [result] = await connection.query('INSERT INTO eventos (titulo, data_evento, hora_evento, descricao, local_evento) VALUES (?, ?, ?, ?, ?)', [titulo, data_evento, hora_evento, descricao, local_evento]);
+        const { titulo, data_evento, hora_evento, descricao, local_evento, linkVideo, publicOrMember } = req.body;
+        const [result] = await connection.query('INSERT INTO eventos (titulo, data_evento, hora_evento, descricao, local_evento, videoLink, publicOrMember) VALUES (?, ?, ?, ?, ?, ?, ?)', [titulo, data_evento, hora_evento, descricao, local_evento, linkVideo, publicOrMember]);
 
         res.json({ message: 'Evento criado com sucesso!' });
     } catch (error) {
