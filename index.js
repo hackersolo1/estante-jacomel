@@ -151,7 +151,6 @@ app.get('/membersDelete/:id', async (req, res) => {
 app.post('/claude', async (req, res) => {
     try {
         const { pergunta } = req.body;
-        console.log(pergunta);
         const response = await anthropic.messages.create({
             model: 'claude-haiku-4-5-20251001',
             max_tokens: 800,
@@ -172,6 +171,7 @@ app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
     main();
 });
+
 
 
 
