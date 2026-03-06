@@ -164,9 +164,14 @@ app.post('/claude', async (req, res) => {
     } catch (error) {
         console.log('Error:', error);
     }
-})
+});
+
+app.get('/ping', (req, res) => {
+    res.json({ status: 'alive' });
+});
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
     main();
 });
+
