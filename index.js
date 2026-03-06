@@ -153,6 +153,7 @@ app.get('/membersDelete/:id', async (req, res) => {
 app.post('/claude', async (req, res) => {
     try {
         const { pergunta } = req.body;
+        console.log(pergunta);
         const response = await anthropic.messages.create({
             model: 'claude-haiku-4-5-20251001',
             max_tokens: 800,
@@ -161,7 +162,7 @@ app.post('/claude', async (req, res) => {
         });
         res.json({ message: response.content[0].text });
     } catch (error) {
-
+        console.log('Error:', error);
     }
 })
 
