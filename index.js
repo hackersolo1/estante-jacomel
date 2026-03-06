@@ -12,21 +12,19 @@ const port = 3000;
 let connection;
 
 const anthropic = new Anthropic({
-    apiKey: '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',
+    apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
 async function main() {
     try {
         connection = await mysql2.createConnection({
-            host: 'mysql-3ba3c391-eujogominecraftpaulo99-728e.k.aivencloud.com',
-            user: 'avnadmin',
-            password: 'AVNS_-u7AAeUqxThE7VlzjIo',
-            database: 'defaultdb',
-            port: 20969,
-            ssl: {
-                rejectUnauthorized: false
-            }
-        });
+        host: process.env.DB_HOST,
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+        database: 'defaultdb',
+        port: process.env.DB_PORT,
+        ssl: { rejectUnauthorized: false }
+    });
 
         await connection.query('USE ipfav');
 
@@ -174,6 +172,7 @@ app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
     main();
 });
+
 
 
 
