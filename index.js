@@ -1,6 +1,7 @@
 const mysql2 = require('mysql2/promise');
 const cors = require('cors');
 const express = require('express');
+const Anthropic = require('@anthropic-ai/sdk');
 
 const app = express();
 app.use(cors());
@@ -9,6 +10,10 @@ app.use(express.json());
 const port = 3000;
 
 let connection;
+
+const anthropic = new Anthropic({
+    apiKey: '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',
+});
 
 async function main() {
     try {
@@ -53,7 +58,7 @@ app.post('/eventsCreate', async (req, res) => {
 
 app.get('/events/:id', async (req, res) => {
     try {
-        const {id} = req.params;
+        const { id } = req.params;
         const [rows] = await connection.query('SELECT * FROM eventos WHERE titulo = ?', [id]);
         res.json(rows[0]);
     } catch (error) {
@@ -73,7 +78,7 @@ app.get('/posts', async (req, res) => {
 
 app.get('/posts/:id', async (req, res) => {
     try {
-        const {id} = req.params;
+        const { id } = req.params;
         const [rows] = await connection.query('SELECT * FROM posts WHERE titulo = ?', [id]);
         res.json(rows[0]);
     } catch (error) {
@@ -83,7 +88,7 @@ app.get('/posts/:id', async (req, res) => {
 
 app.post('/postsCreate', async (req, res) => {
     try {
-        const {slugId, titulo, conteudo, autorPost, dataPost} = req.body;
+        const { slugId, titulo, conteudo, autorPost, dataPost } = req.body;
         const [result] = await connection.query('INSERT INTO posts (slugId, titulo, conteudo, autorPost, dataPost) VALUES (?, ?, ?, ?, ?)', [slugId, titulo, conteudo, autorPost, dataPost]);
 
     } catch (error) {
@@ -93,7 +98,7 @@ app.post('/postsCreate', async (req, res) => {
 
 app.post('/postsDelete', async (req, res) => {
     try {
-        const {id} = req.body;
+        const { id } = req.body;
         await connection.query('DELETE FROM posts WHERE titulo = ?', [id]);
         console.log(id);
 
@@ -105,7 +110,7 @@ app.post('/postsDelete', async (req, res) => {
 
 app.post('/eventsDelete', async (req, res) => {
     try {
-        const {id} = req.body;
+        const { id } = req.body;
         await connection.query('DELETE FROM eventos WHERE titulo = ?', [id]);
 
         res.json({ message: 'Evento deletado com sucesso!' });
@@ -125,7 +130,7 @@ app.get('/members', async (req, res) => {
 
 app.post('/membersCreate', async (req, res) => {
     try {
-        const {nome, funcao} = req.body;
+        const { nome, funcao } = req.body;
         const [result] = await connection.query('INSERT INTO members (memberName, memberFunction) VALUES (?, ?)', [nome, funcao]);
 
         res.json({ message: 'Membro criado com sucesso!' });
@@ -136,7 +141,7 @@ app.post('/membersCreate', async (req, res) => {
 
 app.get('/membersDelete/:id', async (req, res) => {
     try {
-        const {id} = req.params;
+        const { id } = req.params;
         await connection.query('DELETE FROM members WHERE id = ?', [id]);
 
         res.json({ message: 'Membro deletado com sucesso!' });
@@ -144,6 +149,21 @@ app.get('/membersDelete/:id', async (req, res) => {
         console.error('Error deleting member:', error);
     }
 });
+
+app.post('/claude', async (req, res) => {
+    try {
+        const { pergunta } = req.body;
+        const response = await anthropic.messages.create({
+            model: 'claude-haiku-4-5-20251001',
+            max_tokens: 800,
+            system: 'Você é um assistente gentil de uma igreja. Responda de forma bíblica e acolhedora.',
+            messages: [{ role: 'user', content: pergunta }],
+        });
+        res.json({ message: response.content[0].text });
+    } catch (error) {
+
+    }
+})
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
