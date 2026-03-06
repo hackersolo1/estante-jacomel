@@ -12,7 +12,7 @@ const port = 3000;
 let connection;
 
 const anthropic = new Anthropic({
-    apiKey: 'sk-ant-api03-NzCvQDLKBnoeTcE6oWb869Acs_PbSWOlbhbHh8E8E7Qh7dKwFRAFI_Pv46bE_3dclX0lh2P41B4mfq9haFE5Tg-XH6yDAAA',
+    apiKey: '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',
 });
 
 async function main() {
@@ -174,6 +174,7 @@ app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
     main();
 });
+
 
 
 
