@@ -30,9 +30,6 @@ async function main() {
         enableKeepAlive: true,
         keepAliveInitialDelay: 10000
     });
-        
-        await pool.query('SELECT 1');
-        await pool.query('USE ipfav');
 
         console.log('>> MySQL connection established');
     } catch (error) {
@@ -177,6 +174,7 @@ app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
     main();
 });
+
 
 
 
