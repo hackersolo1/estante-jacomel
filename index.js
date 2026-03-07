@@ -9,7 +9,7 @@ app.use(express.json());
 
 const port = 3000;
 
-let connection;
+let pool;
 
 const anthropic = new Anthropic({
     apiKey: process.env.ANTHROPIC_API_KEY,
@@ -17,13 +17,18 @@ const anthropic = new Anthropic({
 
 async function main() {
     try {
-        connection = await mysql2.createConnection({
+        connection = await mysql2.createPool({
         host: process.env.DB_HOST,
         user: process.env.DB_USER,
         password: process.env.DB_PASSWORD,
         database: 'defaultdb',
         port: process.env.DB_PORT,
         ssl: { rejectUnauthorized: false }
+        waitForConnections: true,
+        connectionLimit: 10,
+        queueLimit: 0,
+        enableKeepAlive: true,
+        keepAliveInitialDelay: 10000
     });
 
         await connection.query('USE ipfav');
@@ -36,7 +41,7 @@ async function main() {
 
 app.get('/events', async (req, res) => {
     try {
-        const [rows] = await connection.query('SELECT * FROM eventos');
+        const [rows] = await pool.query('SELECT * FROM eventos');
         res.json(rows);
     } catch (error) {
         console.error('Error fetching events:', error);
@@ -46,7 +51,7 @@ app.get('/events', async (req, res) => {
 app.post('/eventsCreate', async (req, res) => {
     try {
         const { titulo, data_evento, hora_evento, descricao, local_evento, linkVideo, publicOrMember } = req.body;
-        const [result] = await connection.query('INSERT INTO eventos (titulo, data_evento, hora_evento, descricao, local_evento, linkVideo, publicOrMember) VALUES (?, ?, ?, ?, ?, ?, ?)', [titulo, data_evento, hora_evento, descricao, local_evento, linkVideo, publicOrMember]);
+        const [result] = await pool.query('INSERT INTO eventos (titulo, data_evento, hora_evento, descricao, local_evento, linkVideo, publicOrMember) VALUES (?, ?, ?, ?, ?, ?, ?)', [titulo, data_evento, hora_evento, descricao, local_evento, linkVideo, publicOrMember]);
 
         res.json({ message: 'Evento criado com sucesso!' });
     } catch (error) {
@@ -57,7 +62,7 @@ app.post('/eventsCreate', async (req, res) => {
 app.get('/events/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const [rows] = await connection.query('SELECT * FROM eventos WHERE titulo = ?', [id]);
+        const [rows] = await pool.query('SELECT * FROM eventos WHERE titulo = ?', [id]);
         res.json(rows[0]);
     } catch (error) {
         console.error('Error fetching event:', error);
@@ -67,7 +72,7 @@ app.get('/events/:id', async (req, res) => {
 
 app.get('/posts', async (req, res) => {
     try {
-        const [rows] = await connection.query('SELECT * FROM posts');
+        const [rows] = await pool.query('SELECT * FROM posts');
         res.json(rows);
     } catch (error) {
         console.error('Error fetching posts:', error);
@@ -77,7 +82,7 @@ app.get('/posts', async (req, res) => {
 app.get('/posts/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const [rows] = await connection.query('SELECT * FROM posts WHERE titulo = ?', [id]);
+        const [rows] = await pool.query('SELECT * FROM posts WHERE titulo = ?', [id]);
         res.json(rows[0]);
     } catch (error) {
         console.error('Error fetching post:', error);
@@ -87,7 +92,7 @@ app.get('/posts/:id', async (req, res) => {
 app.post('/postsCreate', async (req, res) => {
     try {
         const { slugId, titulo, conteudo, autorPost, dataPost } = req.body;
-        const [result] = await connection.query('INSERT INTO posts (slugId, titulo, conteudo, autorPost, dataPost) VALUES (?, ?, ?, ?, ?)', [slugId, titulo, conteudo, autorPost, dataPost]);
+        const [result] = await pool.query('INSERT INTO posts (slugId, titulo, conteudo, autorPost, dataPost) VALUES (?, ?, ?, ?, ?)', [slugId, titulo, conteudo, autorPost, dataPost]);
 
     } catch (error) {
         console.error('Error creating post:', error);
@@ -97,7 +102,7 @@ app.post('/postsCreate', async (req, res) => {
 app.post('/postsDelete', async (req, res) => {
     try {
         const { id } = req.body;
-        await connection.query('DELETE FROM posts WHERE titulo = ?', [id]);
+        await pool.query('DELETE FROM posts WHERE titulo = ?', [id]);
         console.log(id);
 
         res.json({ message: 'Post deletado com sucesso!' });
@@ -109,7 +114,7 @@ app.post('/postsDelete', async (req, res) => {
 app.post('/eventsDelete', async (req, res) => {
     try {
         const { id } = req.body;
-        await connection.query('DELETE FROM eventos WHERE titulo = ?', [id]);
+        await pool.query('DELETE FROM eventos WHERE titulo = ?', [id]);
 
         res.json({ message: 'Evento deletado com sucesso!' });
     } catch (error) {
@@ -119,7 +124,7 @@ app.post('/eventsDelete', async (req, res) => {
 
 app.get('/members', async (req, res) => {
     try {
-        const [rows] = await connection.query('SELECT * FROM members');
+        const [rows] = await pool.query('SELECT * FROM members');
         res.json(rows);
     } catch (error) {
         console.error('Error fetching members:', error);
@@ -129,7 +134,7 @@ app.get('/members', async (req, res) => {
 app.post('/membersCreate', async (req, res) => {
     try {
         const { nome, funcao } = req.body;
-        const [result] = await connection.query('INSERT INTO members (memberName, memberFunction) VALUES (?, ?)', [nome, funcao]);
+        const [result] = await pool.query('INSERT INTO members (memberName, memberFunction) VALUES (?, ?)', [nome, funcao]);
 
         res.json({ message: 'Membro criado com sucesso!' });
     } catch (error) {
@@ -140,7 +145,7 @@ app.post('/membersCreate', async (req, res) => {
 app.get('/membersDelete/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        await connection.query('DELETE FROM members WHERE id = ?', [id]);
+        await pool.query('DELETE FROM members WHERE id = ?', [id]);
 
         res.json({ message: 'Membro deletado com sucesso!' });
     } catch (error) {
@@ -171,6 +176,7 @@ app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
     main();
 });
+
 
 
 
