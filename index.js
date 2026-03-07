@@ -17,21 +17,22 @@ const anthropic = new Anthropic({
 
 async function main() {
     try {
-        connection = await mysql2.createPool({
+        pool = await mysql2.createPool({
         host: process.env.DB_HOST,
         user: process.env.DB_USER,
         password: process.env.DB_PASSWORD,
         database: 'defaultdb',
         port: process.env.DB_PORT,
-        ssl: { rejectUnauthorized: false }
+        ssl: { rejectUnauthorized: false },
         waitForConnections: true,
         connectionLimit: 10,
         queueLimit: 0,
         enableKeepAlive: true,
         keepAliveInitialDelay: 10000
     });
-
-        await connection.query('USE ipfav');
+        
+        await pool.query('SELECT 1');
+        await pool.query('USE ipfav');
 
         console.log('>> MySQL connection established');
     } catch (error) {
@@ -176,6 +177,7 @@ app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
     main();
 });
+
 
 
 
